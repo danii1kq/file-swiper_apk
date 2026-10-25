@@ -7,10 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.danni.fileswiper.data.model.SessionRequest
 import com.danni.fileswiper.ui.theme.FileSwiperTheme
-import com.danni.fileswiper.viewmodel.SetupViewModel
-import com.danni.fileswiper.viewmodel.SwipeViewModel
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {

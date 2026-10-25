@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FolderOpen
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -119,6 +120,8 @@ internal fun ModeCard(
 internal fun MonthsSection(
     months: List<MonthBucket>,
     scanning: Boolean,
+    hasAccess: Boolean,
+    onGrantAccess: () -> Unit,
     context: Context,
     onClickMonth: (String) -> Unit,
     onRefresh: () -> Unit
@@ -144,6 +147,10 @@ internal fun MonthsSection(
         }
     }
     when {
+        !hasAccess -> {
+            GrantAccessCard(onGrant = onGrantAccess)
+        }
+
         scanning -> {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -179,6 +186,42 @@ internal fun MonthsSection(
                         onClick = { onClickMonth(bucket.id) }
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun GrantAccessCard(onGrant: () -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.primaryContainer
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Rounded.Lock,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = stringResource(R.string.grant_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.grant_text),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            androidx.compose.material3.Button(onClick = onGrant) {
+                Text(stringResource(R.string.grant_btn))
             }
         }
     }

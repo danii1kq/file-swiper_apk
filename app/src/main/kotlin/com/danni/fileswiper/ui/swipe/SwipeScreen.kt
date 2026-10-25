@@ -25,6 +25,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -79,10 +80,13 @@ fun SwipeScreen(
         if (sessionDone) onFinished()
     }
 
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize()
+    ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
             .navigationBarsPadding()
     ) {
@@ -159,6 +163,7 @@ fun SwipeScreen(
             onKeepClick = { stack.trigger(SwipeDirection.RIGHT) }
         )
         Spacer(modifier = Modifier.height(12.dp))
+    }
     }
 
     if (showFinishDialog) {

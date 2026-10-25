@@ -81,10 +81,13 @@ fun TrashScreen(
         }
     }
 
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize()
+    ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
             .navigationBarsPadding()
     ) {
@@ -245,6 +248,7 @@ fun TrashScreen(
                 }
             }
         }
+    }
     }
 
     if (showConfirm) {

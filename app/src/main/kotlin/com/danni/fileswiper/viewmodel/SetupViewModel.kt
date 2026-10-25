@@ -1,6 +1,8 @@
 package com.danni.fileswiper.viewmodel
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danni.fileswiper.FileSwiperApp
@@ -51,7 +53,12 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
     val language: StateFlow<String> = settings.language
 
     fun applyThemeMode(mode: ThemeMode) = settings.setThemeMode(mode)
-    fun applyLanguage(tag: String) = settings.setLanguage(tag)
+
+    /** Saves the choice and applies it immediately (activities auto-recreate). */
+    fun applyLanguage(tag: String) {
+        settings.setLanguage(tag)
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+    }
 
     /** One-shot request consumed by the UI to launch a swipe session. */
     private val _sessionRequests = MutableStateFlow<SessionRequest?>(null)

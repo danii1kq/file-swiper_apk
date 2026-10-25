@@ -2,7 +2,6 @@
 
 package com.danni.fileswiper.ui.setup
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +39,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,9 +51,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.danni.fileswiper.R
 import com.danni.fileswiper.data.model.CleanMode
@@ -88,15 +91,36 @@ fun SetupScreen(
         }
     }
 
-    val hasAccess = remember { StoragePermissions.hasAccess(context) }
-    LaunchedEffect(Unit) {
+    var hasAccess by remember { mutableStateOf(StoragePermissions.hasAccess(context)) }
+    LaunchedEffect(hasAccess) {
         if (hasAccess) viewModel.refreshMonths()
     }
 
+    // Re-check storage access every time the app comes back to the foreground:
+    // the user might have granted "All files access" in system settings just now.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val granted = StoragePermissions.hasAccess(context)
+                hasAccess = granted
+                if (granted) {
+                    viewModel.dismissPermissionDialog()
+                    if (months.isEmpty()) viewModel.refreshMonths()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize()
+    ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
     ) {
         Row(
@@ -178,6 +202,8 @@ fun SetupScreen(
                 CleanMode.MONTHLY -> MonthsSection(
                     months = months,
                     scanning = scanning,
+                    hasAccess = hasAccess,
+                    onGrantAccess = { StoragePermissions.request(context) },
                     context = context,
                     onClickMonth = { bucketId -> viewModel.startSession(bucketId) },
                     onRefresh = { viewModel.refreshMonths() }
@@ -204,6 +230,7 @@ fun SetupScreen(
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
     }
 
     if (state.permissionDialogVisible) {
