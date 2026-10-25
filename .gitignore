@@ -9,3 +9,8 @@
 .cxx
 app/build/
 STITCH_PROMPT.md
+
+# local OpenCode config (contains Stitch MCP API key) - never commit
+opencode.json
+# Stitch design artifacts
+stitch/
