@@ -85,7 +85,7 @@ class SwipeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** Skip: the card goes to the very end of the current queue. */
-    fun onSkip(item: FileItem) {
+    fun onSkip() {
         container.audioPlayer.stop()
         val queue = _queue.value.toMutableList()
         val removed = queue.removeFirstOrNull() ?: return

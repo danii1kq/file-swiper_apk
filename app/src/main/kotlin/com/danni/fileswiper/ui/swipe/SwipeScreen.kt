@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
@@ -94,7 +94,7 @@ fun SwipeScreen(
         ) {
             IconButton(onClick = { showFinishDialog = true }) {
                 Icon(
-                    imageVector = Icons.Rounded.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                     contentDescription = stringResource(R.string.finish_dialog_title),
                     tint = MaterialTheme.colorScheme.onBackground
                 )
@@ -134,7 +134,7 @@ fun SwipeScreen(
                 stackKey = generation,
                 onSwipeLeft = { viewModel.onSwipeLeft(it) },
                 onSwipeRight = { viewModel.onSwipeRight(it) },
-                onSwipeUp = { viewModel.onSkip(it) },
+                onSwipeUp = { viewModel.onSkip() },
                 card = { item ->
                     val playing = audioState.fileId == item.id && audioState.isPlaying
                     val fraction = if (audioState.fileId == item.id && audioState.durationMs > 0) {

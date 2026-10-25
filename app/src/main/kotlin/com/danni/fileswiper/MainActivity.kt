@@ -37,12 +37,7 @@ class MainActivity : AppCompatActivity() {
     private fun wrapLocale(base: Context, tag: String): Context {
         return try {
             val config = android.content.res.Configuration(base.resources.configuration)
-            val locale = Locale.forLanguageTag(tag)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                config.setLocale(locale)
-            } else {
-                config.locale = locale
-            }
+            config.setLocale(Locale.forLanguageTag(tag))
             base.createConfigurationContext(config)
         } catch (_: Exception) {
             base
