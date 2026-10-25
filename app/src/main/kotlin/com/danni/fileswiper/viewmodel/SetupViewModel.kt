@@ -13,6 +13,7 @@ import com.danni.fileswiper.data.model.MonthBucket
 import com.danni.fileswiper.data.model.SessionRequest
 import com.danni.fileswiper.data.prefs.ThemeMode
 import com.danni.fileswiper.data.storage.StoragePermissions
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -96,10 +97,18 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
         }
         viewModelScope.launch {
             _scanning.value = true
-            val cleared = settings.clearedMonths.value
-            val files = repo.scan(categories)
-            _months.value = files.groupByMonth(categories, cleared)
-            _scanning.value = false
+            try {
+                val cleared = settings.clearedMonths.value
+                val files = safeScan(categories)
+                _months.value = files.groupByMonth(categories, cleared)
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (t: Throwable) {
+                // Scanning must never kill the app; degrade to empty state.
+                _months.value = emptyList()
+            } finally {
+                _scanning.value = false
+            }
         }
     }
 
@@ -118,7 +127,7 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
                         _months.value.firstOrNull { !it.isCleared }
                     } ?: return@launch
                     _scanning.value = true
-                    val files = repo.scan(state.selectedCategories)
+                    val files = safeScan(state.selectedCategories)
                     _scanning.value = false
                     if (files.isEmpty()) return@launch
                     val monthStart = month.startMillis
@@ -141,7 +150,7 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
 
                 CleanMode.QUICK -> {
                     _scanning.value = true
-                    val files = repo.scan(state.selectedCategories)
+                    val files = safeScan(state.selectedCategories)
                     _scanning.value = false
                     if (files.isEmpty()) return@launch
                     emitSession(
@@ -160,6 +169,16 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun emitSession(request: SessionRequest) {
         _sessionRequests.value = request
     }
+
+    /** repo.scan wrapped so a glitchy provider can never take the app down. */
+    private suspend fun safeScan(categories: Set<FileCategory>): List<FileItem> =
+        try {
+            repo.scan(categories)
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (t: Throwable) {
+            emptyList()
+        }
 
     fun dismissPermissionDialog() {
         _uiState.update { it.copy(permissionDialogVisible = false) }

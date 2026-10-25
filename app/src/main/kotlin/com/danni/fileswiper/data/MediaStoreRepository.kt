@@ -92,9 +92,10 @@ class MediaStoreRepository(context: Context) : MediaRepository {
                     )
                 }
             }
-        } catch (_: SecurityException) {
-        } catch (_: IllegalArgumentException) {
-        } catch (_: IllegalStateException) {
+        } catch (_: RuntimeException) {
+            // SecurityException extends it; provider/cursor glitches too.
+            // Scan must never crash the app.
+        } catch (_: Exception) {
         }
         return files
     }
@@ -142,9 +143,10 @@ class MediaStoreRepository(context: Context) : MediaRepository {
                     )
                 }
             }
-        } catch (_: SecurityException) {
-        } catch (_: IllegalArgumentException) {
-        } catch (_: IllegalStateException) {
+        } catch (_: RuntimeException) {
+            // SecurityException extends it; provider/cursor glitches too.
+            // Scan must never crash the app.
+        } catch (_: Exception) {
         }
         return files
     }
