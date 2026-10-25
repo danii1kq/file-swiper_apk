@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">FileSwiper</string>
     <string name="setup_title">Настройка сессии</string>
+    <string name="setup_subtitle">Разбирайте файлы свайпами и отправляйте их партиями</string>
     <string name="select_types">Типы файлов</string>
     <string name="cat_photos">Фото</string>
     <string name="cat_videos">Видео</string>
@@ -35,6 +36,8 @@
     <string name="trash_empty_title">Удалять нечего</string>
     <string name="trash_empty_text">Все файлы сохранены. Отлично!</string>
     <string name="to_delete_total">К удалению: %1$s</string>
+    <string name="ready_purge">Готово к удалению</string>
+    <string name="delete_warning">Файлы будут удалены с устройства навсегда.</string>
     <string name="delete_forever">Удалить навсегда</string>
     <string name="confirm_title">Удалить %1$d файлов?</string>
     <string name="confirm_text">Файлы будут удалены безвозвратно. Восстановить их нельзя.</string>
@@ -66,5 +69,12 @@
         <item quantity="few">%d файла</item>
         <item quantity="many">%d файлов</item>
         <item quantity="other">%d файлов</item>
+    </plurals>
+
+    <plurals name="files_marked">
+        <item quantity="one">%d файл помечен к удалению</item>
+        <item quantity="few">%d файла помечено к удалению</item>
+        <item quantity="many">%d файлов помечено к удалению</item>
+        <item quantity="other">%d файлов помечено к удалению</item>
     </plurals>
 </resources>

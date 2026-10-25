@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">FileSwiper</string>
     <string name="setup_title">Session setup</string>
+    <string name="setup_subtitle">Sort files and swipe to batch them</string>
     <string name="select_types">File types</string>
     <string name="cat_photos">Photos</string>
     <string name="cat_videos">Videos</string>
@@ -35,6 +36,8 @@
     <string name="trash_empty_title">Nothing to delete</string>
     <string name="trash_empty_text">All files were kept. Nice job!</string>
     <string name="to_delete_total">To delete: %1$s</string>
+    <string name="ready_purge">Ready to purge</string>
+    <string name="delete_warning">Files will be permanently erased from your device.</string>
     <string name="delete_forever">Delete forever</string>
     <string name="confirm_title">Delete %1$d files?</string>
     <string name="confirm_text">Files will be removed permanently. This can\'t be undone.</string>
@@ -64,5 +67,10 @@
     <plurals name="files_count">
         <item quantity="one">%d file</item>
         <item quantity="other">%d files</item>
+    </plurals>
+
+    <plurals name="files_marked">
+        <item quantity="one">%d file marked for deletion</item>
+        <item quantity="other">%d files marked for deletion</item>
     </plurals>
 </resources>
