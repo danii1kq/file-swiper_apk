@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -51,6 +50,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.danni.fileswiper.data.model.FileCategory
 import com.danni.fileswiper.data.model.FileItem
+import com.danni.fileswiper.data.model.extension
 import com.danni.fileswiper.ui.common.formatDateShort
 import com.danni.fileswiper.ui.common.formatFileSize
 import kotlinx.coroutines.Dispatchers
@@ -133,7 +133,7 @@ private fun CardHeader(item: FileItem) {
             }
             Box(
                 modifier = Modifier
-                    .matchParentSize()
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 if (bitmap != null) {
@@ -141,7 +141,7 @@ private fun CardHeader(item: FileItem) {
                         bitmap = bitmap!!.asImageBitmap(),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.matchParentSize()
+                        modifier = Modifier.fillMaxSize()
                     )
                 } else {
                     CardFallbackIcon(
@@ -175,7 +175,7 @@ private fun CardHeader(item: FileItem) {
         FileCategory.AUDIO -> {
             Box(
                 modifier = Modifier
-                    .matchParentSize()
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Icon(
@@ -192,7 +192,7 @@ private fun CardHeader(item: FileItem) {
         FileCategory.DOCUMENTS -> {
             Box(
                 modifier = Modifier
-                    .matchParentSize()
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 val visual = docVisualFor(item.extension)

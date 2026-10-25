@@ -112,7 +112,7 @@ class SwipeStackState internal constructor(private val scope: CoroutineScope) {
     fun onDragEnd() {
         dragging = false
         if (busy) return
-        val velocity = computeVelocityOrNull()
+        val velocity = velocityTracker.computeVelocityOrNull()
         val horizontal = widthPx * 0.22f
         val vertical = heightPx * 0.24f
         when {
@@ -229,11 +229,11 @@ fun SwipeStack(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        val value = offset.value
+                        val value = state.offset.value
                         val entranceProgress = state.entranceValue()
                         translationX = value.x
                         translationY = value.y + (1f - entranceProgress) * 30.dp.toPx()
-                        rotationZ = value.x / max(widthPx, 1f) * 16f
+                        rotationZ = value.x / max(state.widthPx, 1f) * 16f
                         val scale = 0.965f + 0.035f * entranceProgress
                         scaleX = scale
                         scaleY = scale
@@ -265,12 +265,12 @@ fun SwipeStack(
             ) {
                 card(topItem)
 
-                val progress = min(1f, abs(offset.value.x) / max(state.widthPx * 0.22f, 1f))
+                val progress = min(1f, abs(state.offset.value.x) / max(state.widthPx * 0.22f, 1f))
                 SwipeStamp(
                     text = stringResource(R.string.delete_stamp),
                     color = MaterialTheme.colorScheme.error,
                     rotation = -12f,
-                    alpha = if (offset.value.x < 0f) progress else 0f,
+                    alpha = if (state.offset.value.x < 0f) progress else 0f,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(top = 22.dp, start = 22.dp)
@@ -279,7 +279,7 @@ fun SwipeStack(
                     text = stringResource(R.string.keep_stamp),
                     color = MaterialTheme.colorScheme.primary,
                     rotation = 12f,
-                    alpha = if (offset.value.x > 0f) progress else 0f,
+                    alpha = if (state.offset.value.x > 0f) progress else 0f,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = 22.dp, end = 22.dp)
@@ -324,9 +324,10 @@ private fun SwipeStamp(
     }
 }
 
-/** Velocity helper: computeVelocity throws when no samples were captured yet. */
+/** Velocity helper: falls back to zero velocity when no samples were captured. */
 private fun VelocityTracker.computeVelocityOrNull(): Offset = try {
-    computeVelocity()
-} catch (_: IllegalStateException) {
+    val velocity = calculateVelocity()
+    Offset(velocity.x, velocity.y)
+} catch (_: Exception) {
     Offset.Zero
 }
