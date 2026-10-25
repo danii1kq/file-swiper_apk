@@ -45,7 +45,7 @@ class SettingsRepository(context: Context) {
 
     fun addClearedMonths(keys: Collection<String>) {
         if (keys.isEmpty()) return
-        _clearedMonths.value + keys
+        _clearedMonths.value = _clearedMonths.value + keys
         prefs.edit { putStringSet(KEY_CLEARED_MONTHS, _clearedMonths.value) }
     }
 
