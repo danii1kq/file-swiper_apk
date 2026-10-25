@@ -207,7 +207,7 @@ private fun ActionButtonsRow(
             container = MaterialTheme.colorScheme.error,
             label = stringResource(R.string.delete_btn),
             onClick = onDeleteClick,
-            size = 62.dp
+            size = 70.dp
         )
         RoundAction(
             icon = Icons.Rounded.KeyboardArrowUp,
@@ -215,7 +215,7 @@ private fun ActionButtonsRow(
             container = MaterialTheme.colorScheme.surfaceVariant,
             label = stringResource(R.string.skip_btn),
             onClick = onSkipClick,
-            size = 52.dp
+            size = 56.dp
         )
         RoundAction(
             icon = Icons.Rounded.Favorite,
@@ -223,7 +223,7 @@ private fun ActionButtonsRow(
             container = MaterialTheme.colorScheme.primary,
             label = stringResource(R.string.keep_btn),
             onClick = onKeepClick,
-            size = 62.dp
+            size = 70.dp
         )
     }
 }

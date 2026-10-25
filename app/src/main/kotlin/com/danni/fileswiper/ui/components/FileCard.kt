@@ -44,10 +44,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.danni.fileswiper.data.model.FileCategory
 import com.danni.fileswiper.data.model.FileItem
 import com.danni.fileswiper.data.model.extension
@@ -59,8 +62,8 @@ import kotlinx.coroutines.withContext
 private data class DocVisual(val label: String, val background: Color)
 
 private fun docVisualFor(extension: String): DocVisual = when (extension) {
-    "doc", "docx" -> DocVisual("W", Color(0xFF2B579A))
-    "xls", "xlsx" -> DocVisual("X", Color(0xFF217346))
+    "doc", "docx" -> DocVisual("W", Color(0xFF185ABD))
+    "xls", "xlsx" -> DocVisual("X", Color(0xFF107C41))
     "ppt", "pptx" -> DocVisual("P", Color(0xFFD24726))
     "pdf" -> DocVisual("PDF", Color(0xFFD93025))
     "txt" -> DocVisual("TXT", Color(0xFF5F6368))
@@ -270,7 +273,7 @@ private fun AudioBar(
 private fun stringOrEmpty(playing: Boolean): String =
     if (playing) "Pause" else "Play"
 
-/** Compact glyph for trash rows. */
+/** Compact glyph for trash rows: circular type badge, as in the Stitch design. */
 @Composable
 fun FileGlyph(item: FileItem, glyphSize: Dp = 44.dp) {
     when (item.category) {
@@ -280,37 +283,54 @@ fun FileGlyph(item: FileItem, glyphSize: Dp = 44.dp) {
             LaunchedEffect(item.id, item.uri) {
                 bitmap = withContext(Dispatchers.IO) { loadThumbnail(context, item.uri) }
             }
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(glyphSize)
-            ) {
-                if (bitmap != null) {
-                    Image(
-                        bitmap = bitmap!!.asImageBitmap(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = if (item.category == FileCategory.VIDEOS) {
-                                Icons.Rounded.Videocam
-                            } else {
-                                Icons.Rounded.Image
-                            },
+            Box(modifier = Modifier.size(glyphSize)) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.size(glyphSize)
+                ) {
+                    if (bitmap != null) {
+                        Image(
+                            bitmap = bitmap!!.asImageBitmap(),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(20.dp)
+                            contentScale = ContentScale.Crop
                         )
+                    } else {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = if (item.category == FileCategory.VIDEOS) {
+                                    Icons.Rounded.Videocam
+                                } else {
+                                    Icons.Rounded.Image
+                                },
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
+                Text(
+                    text = item.extension.uppercase().ifBlank { "FILE" },
+                    style = TextStyle(
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 0.3.sp
+                    ),
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                )
             }
         }
 
         FileCategory.AUDIO -> {
             Surface(
-                shape = MaterialTheme.shapes.small,
+                shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.size(glyphSize)
             ) {
@@ -328,7 +348,7 @@ fun FileGlyph(item: FileItem, glyphSize: Dp = 44.dp) {
         FileCategory.DOCUMENTS -> {
             val visual = docVisualFor(item.extension)
             Surface(
-                shape = MaterialTheme.shapes.small,
+                shape = CircleShape,
                 color = visual.background,
                 modifier = Modifier.size(glyphSize)
             ) {
@@ -336,8 +356,12 @@ fun FileGlyph(item: FileItem, glyphSize: Dp = 44.dp) {
                     Text(
                         text = visual.label,
                         color = Color.White,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold
+                        style = TextStyle(
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = (-0.2).sp
+                        ),
+                        maxLines = 1
                     )
                 }
             }
