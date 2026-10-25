@@ -60,14 +60,6 @@
     <string name="language_title">Language</string>
     <string name="lang_english">English</string>
     <string name="lang_russian">Русский</string>
-    <string name="settings_title">Settings</string>
-    <string name="theme_title">Theme</string>
-    <string name="theme_system">System</string>
-    <string name="theme_light">Light</string>
-    <string name="theme_dark">Dark</string>
-    <string name="language_title">Language</string>
-    <string name="lang_english">English</string>
-    <string name="lang_russian">Русский</string>
 
     <plurals name="files_count">
         <item quantity="one">%d file</item>
