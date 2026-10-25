@@ -131,6 +131,16 @@ class SwipeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** The system delete dialog (API 30+) was approved; commit the result. */
+    fun onSystemDeleteApproved(items: List<FileItem>) {
+        container.audioPlayer.stop()
+        _deleteOutcome.value = DeleteOutcome(
+            freedBytes = items.sumOf { it.size },
+            failed = 0
+        )
+        _trash.value = emptyList()
+    }
+
     fun reset() {
         _queue.value = emptyList()
         _trash.value = emptyList()
