@@ -50,6 +50,7 @@ import com.danni.fileswiper.ui.components.FileCard
 import com.danni.fileswiper.ui.components.SwipeDirection
 import com.danni.fileswiper.ui.components.SwipeStack
 import com.danni.fileswiper.ui.components.rememberSwipeStackState
+import com.danni.fileswiper.ui.common.BadgePill
 import com.danni.fileswiper.ui.common.formatFileSize
 import com.danni.fileswiper.viewmodel.SwipeViewModel
 import java.util.Locale
@@ -117,11 +118,9 @@ fun SwipeScreen(
                     )
                 }
             }
-            Text(
+            BadgePill(
                 text = formatFileSize(context, trashSize),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.tertiary,
-                fontWeight = FontWeight.SemiBold
+                modifier = Modifier.padding(end = 8.dp)
             )
         }
 
@@ -204,8 +203,8 @@ private fun ActionButtonsRow(
     ) {
         RoundAction(
             icon = Icons.Rounded.Delete,
-            tint = MaterialTheme.colorScheme.error,
-            container = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.55f),
+            tint = MaterialTheme.colorScheme.onError,
+            container = MaterialTheme.colorScheme.error,
             label = stringResource(R.string.delete_btn),
             onClick = onDeleteClick,
             size = 62.dp

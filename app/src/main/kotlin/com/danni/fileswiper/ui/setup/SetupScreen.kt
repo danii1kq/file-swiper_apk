@@ -18,14 +18,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.FolderOpen
+import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -129,12 +134,18 @@ fun SetupScreen(
                 .padding(horizontal = 20.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = stringResource(R.string.setup_title),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f)
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.setup_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = stringResource(R.string.setup_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             IconButton(onClick = { showSettings = true }) {
                 Icon(
                     imageVector = Icons.Rounded.Settings,
@@ -158,22 +169,26 @@ fun SetupScreen(
                 LabeledChip(
                     label = stringResource(R.string.cat_photos),
                     selected = FileCategory.PHOTOS in state.selectedCategories,
-                    onClick = { viewModel.toggleCategory(FileCategory.PHOTOS) }
+                    onClick = { viewModel.toggleCategory(FileCategory.PHOTOS) },
+                    icon = Icons.Rounded.Image
                 )
                 LabeledChip(
                     label = stringResource(R.string.cat_videos),
                     selected = FileCategory.VIDEOS in state.selectedCategories,
-                    onClick = { viewModel.toggleCategory(FileCategory.VIDEOS) }
+                    onClick = { viewModel.toggleCategory(FileCategory.VIDEOS) },
+                    icon = Icons.Rounded.Videocam
                 )
                 LabeledChip(
                     label = stringResource(R.string.cat_audio),
                     selected = FileCategory.AUDIO in state.selectedCategories,
-                    onClick = { viewModel.toggleCategory(FileCategory.AUDIO) }
+                    onClick = { viewModel.toggleCategory(FileCategory.AUDIO) },
+                    icon = Icons.Rounded.MusicNote
                 )
                 LabeledChip(
                     label = stringResource(R.string.cat_docs),
                     selected = FileCategory.DOCUMENTS in state.selectedCategories,
-                    onClick = { viewModel.toggleCategory(FileCategory.DOCUMENTS) }
+                    onClick = { viewModel.toggleCategory(FileCategory.DOCUMENTS) },
+                    icon = Icons.Rounded.Description
                 )
             }
             AnimatedDocsHint(visible = FileCategory.DOCUMENTS in state.selectedCategories)
@@ -218,6 +233,7 @@ fun SetupScreen(
             Button(
                 onClick = { viewModel.startSession() },
                 enabled = !scanning,
+                shape = RoundedCornerShape(50),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)

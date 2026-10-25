@@ -28,8 +28,11 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -53,9 +56,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.danni.fileswiper.R
+import com.danni.fileswiper.data.model.FileCategory
 import com.danni.fileswiper.data.model.FileItem
+import com.danni.fileswiper.ui.common.BadgePill
 import com.danni.fileswiper.ui.common.EmptyState
 import com.danni.fileswiper.ui.common.formatDateShort
 import com.danni.fileswiper.ui.common.formatFileSize
@@ -103,11 +109,17 @@ fun TrashScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
-            Text(
+            BadgePill(
                 text = formatFileSize(context, trash.sumOf { it.size }),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.tertiary,
-                fontWeight = FontWeight.SemiBold
+                icon = Icons.Rounded.Cloud
+            )
+        }
+        if (trash.isNotEmpty() && outcome == null) {
+            Text(
+                text = stringResource(R.plurals.files_marked, trash.size),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 20.dp, bottom = 8.dp)
             )
         }
 
@@ -199,15 +211,25 @@ fun TrashScreen(
                 color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(
-                            R.string.to_delete_total,
-                            formatFileSize(context, trash.sumOf { it.size })
-                        ),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.ready_purge).uppercase(),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 1.2.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = stringResource(
+                                R.string.to_delete_total,
+                                formatFileSize(context, trash.sumOf { it.size })
+                            ),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
@@ -221,13 +243,14 @@ fun TrashScreen(
                             }
                         },
                         enabled = !deleting,
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error,
                             contentColor = MaterialTheme.colorScheme.onError
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(54.dp)
                     ) {
                         if (deleting) {
                             CircularProgressIndicator(
@@ -238,6 +261,12 @@ fun TrashScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(stringResource(R.string.deleting))
                         } else {
+                            Icon(
+                                imageVector = Icons.Rounded.DeleteForever,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
                             Text(
                                 text = stringResource(R.string.delete_forever),
                                 style = MaterialTheme.typography.titleMedium,
@@ -245,6 +274,13 @@ fun TrashScreen(
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.delete_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
                 }
             }
         }
@@ -286,6 +322,15 @@ private fun buildDeleteIntentSender(context: Context, items: List<FileItem>): In
 
 @Composable
 private fun TrashRow(item: FileItem) {
+    val context = LocalContext.current
+    val categoryLabel = stringResource(
+        when (item.category) {
+            FileCategory.PHOTOS -> R.string.cat_photos
+            FileCategory.VIDEOS -> R.string.cat_videos
+            FileCategory.AUDIO -> R.string.cat_audio
+            FileCategory.DOCUMENTS -> R.string.cat_docs
+        }
+    )
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surface,
@@ -308,16 +353,26 @@ private fun TrashRow(item: FileItem) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = formatDateShort(LocalContext.current, item.dateModified),
+                    text = "${formatDateShort(context, item.dateModified)} · $categoryLabel",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-            Text(
-                text = formatFileSize(LocalContext.current, item.size),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.tertiary
-            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Surface(
+                shape = RoundedCornerShape(50),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = formatFileSize(context, item.size),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                )
+            }
         }
     }
 }
