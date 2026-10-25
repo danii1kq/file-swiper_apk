@@ -9,6 +9,7 @@ import com.danni.fileswiper.data.model.FileCategory
 import com.danni.fileswiper.data.model.FileItem
 import com.danni.fileswiper.data.model.MonthBucket
 import com.danni.fileswiper.data.model.SessionRequest
+import com.danni.fileswiper.data.prefs.ThemeMode
 import com.danni.fileswiper.data.storage.StoragePermissions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,6 +46,12 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
     val clearedMonths get() = settings.clearedMonths
+
+    val themeMode: StateFlow<ThemeMode> = settings.themeMode
+    val language: StateFlow<String> = settings.language
+
+    fun applyThemeMode(mode: ThemeMode) = settings.setThemeMode(mode)
+    fun applyLanguage(tag: String) = settings.setLanguage(tag)
 
     /** One-shot request consumed by the UI to launch a swipe session. */
     private val _sessionRequests = MutableStateFlow<SessionRequest?>(null)
@@ -89,7 +96,7 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun startSession() {
+    fun startSession(monthKey: String? = null) {
         if (!StoragePermissions.hasAccess(getApplication())) {
             _uiState.update { it.copy(permissionDialogVisible = true) }
             return
@@ -98,7 +105,11 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             when (state.mode) {
                 CleanMode.MONTHLY -> {
-                    val month = _months.value.firstOrNull { !it.isCleared } ?: return@launch
+                    val month = if (monthKey != null) {
+                        _months.value.firstOrNull { it.id == monthKey && !it.isCleared }
+                    } else {
+                        _months.value.firstOrNull { !it.isCleared }
+                    } ?: return@launch
                     _scanning.value = true
                     val files = repo.scan(state.selectedCategories)
                     _scanning.value = false
