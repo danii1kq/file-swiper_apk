@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -134,7 +135,7 @@ fun MonthRow(
     modifier: Modifier = Modifier
 ) {
     val cleared = bucket.isCleared
-    val itemsText = stringResource(R.plurals.files_count, bucket.count)
+    val itemsText = pluralStringResource(R.plurals.files_count, bucket.count, bucket.count)
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = if (cleared) {

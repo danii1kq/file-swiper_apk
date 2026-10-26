@@ -244,13 +244,15 @@ private fun RoundAction(
     onClick: () -> Unit,
     size: androidx.compose.ui.unit.Dp
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
+    ) {
         Box(
             modifier = Modifier
                 .size(size)
                 .clip(CircleShape)
                 .background(container)
-                .clickable(onClick = onClick)
         ) {
             Icon(
                 imageVector = icon,

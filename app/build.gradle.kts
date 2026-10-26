@@ -51,7 +51,10 @@ android {
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2024.01.00")
+    // 2024.01.00 pairs material3 1.1.2 with compose 1.6.0 which is binary
+    // incompatible (CircularProgressIndicator NoSuchMethodError at first
+    // scan — see KeyframesSpecConfig.at). 2024.02.01 is the consistent set.
+    val composeBom = platform("androidx.compose:compose-bom:2024.02.01")
     implementation(composeBom)
 
     implementation("androidx.compose.ui:ui")

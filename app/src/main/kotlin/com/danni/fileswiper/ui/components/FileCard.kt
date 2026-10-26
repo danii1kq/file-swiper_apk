@@ -253,7 +253,7 @@ private fun AudioBar(
         }
         Spacer(modifier = Modifier.size(12.dp))
         LinearProgressIndicator(
-            progress = positionFraction.coerceIn(0f, 1f),
+            progress = { positionFraction.coerceIn(0f, 1f) },
             modifier = Modifier
                 .weight(1f)
                 .height(6.dp),
