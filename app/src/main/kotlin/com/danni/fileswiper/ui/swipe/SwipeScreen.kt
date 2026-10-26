@@ -81,6 +81,13 @@ fun SwipeScreen(
         if (sessionDone) onFinished()
     }
 
+    // Process death mid-session (e.g. the user went to system settings to grant
+    // storage access) can restore this screen with an empty, unfinished queue.
+    // Escape gracefully to the trash/home instead of showing a dead screen.
+    LaunchedEffect(Unit) {
+        if (viewModel.isDeadEnd()) onFinishRequested()
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()

@@ -154,6 +154,13 @@ class SwipeViewModel(application: Application) : AndroidViewModel(application) {
         container.audioPlayer.stop()
     }
 
+    /**
+     * True when the swipe screen was restored after a process death mid-session:
+     * no live session, nothing finished, queue lost. The UI should escape.
+     */
+    fun isDeadEnd(): Boolean =
+        !_sessionActive.value && !_sessionDone.value && _queue.value.isEmpty()
+
     private fun checkFinished() {
         if (_queue.value.isEmpty() && _sessionActive.value) {
             completeSession()
