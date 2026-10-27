@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">FileSwiper</string>
     <string name="setup_title">Настройка сессии</string>
-    <string name="setup_subtitle">Разбирайте файлы свайпами и отправляйте их партиями</string>
+    <string name="setup_subtitle">Разбирайте файлы свайпами</string>
     <string name="select_types">Типы файлов</string>
     <string name="cat_photos">Фото</string>
     <string name="cat_videos">Видео</string>
@@ -10,9 +10,9 @@
     <string name="docs_hint">DOC · DOCX · XLS · XLSX · PPT · PPTX · PDF · TXT</string>
     <string name="mode_title">Режим чистки</string>
     <string name="mode_monthly">По месяцам</string>
-    <string name="mode_monthly_hint">Идём по месяцам и чистим каждый</string>
+    <string name="mode_monthly_hint">Сортировка по месяцам</string>
     <string name="mode_quick">Быстрый режим</string>
-    <string name="mode_quick_hint">Случайные файлы, свайпаем на скорость</string>
+    <string name="mode_quick_hint">Случайные файлы подряд</string>
     <string name="months_header">Файлы по месяцам</string>
     <string name="scanning">Сканируем файлы…</string>
     <string name="no_files">Нет файлов по выбранным типам</string>

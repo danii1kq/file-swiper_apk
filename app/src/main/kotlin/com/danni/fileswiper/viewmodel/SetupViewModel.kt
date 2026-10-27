@@ -225,6 +225,9 @@ class SetupViewModel(application: Application) : AndroidViewModel(application) {
         val locale: Locale = getApplication<Application>().resources.configuration.locales[0]
         val format = SimpleDateFormat("LLLL yyyy", locale)
         val zone = ZoneId.systemDefault()
-        return format.format(Date.from(date.withDayOfMonth(1).atStartOfDay(zone).toInstant()))
+        val raw = format.format(Date.from(date.withDayOfMonth(1).atStartOfDay(zone).toInstant()))
+        // SimpleDateFormat yields lowercase standalone month names (october / октябрь);
+        // list rows are titles, so capitalize the first letter.
+        return raw.replaceFirstChar { if (it.isLowerCase()) it.uppercase(locale) else it.toString() }
     }
 }

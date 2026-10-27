@@ -122,7 +122,7 @@ internal fun ModeCard(
                     shape = CircleShape,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.BottomEnd)
                         .size(22.dp)
                 ) {
                     Icon(

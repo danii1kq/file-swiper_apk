@@ -1,13 +1,16 @@
 package com.danni.fileswiper.ui.components
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -79,6 +83,8 @@ fun FileCard(
     timeText: String,
     onPlayToggle: () -> Unit
 ) {
+    val context = LocalContext.current
+    val onOpenFile = { openInViewer(context, item) }
     Surface(
         modifier = Modifier.fillMaxSize(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -91,7 +97,7 @@ fun FileCard(
                     .fillMaxWidth()
                     .fillMaxHeight(0.44f)
             ) {
-                CardHeader(item)
+                CardHeader(item, onOpenFile)
             }
             Column(
                 modifier = Modifier
@@ -106,8 +112,8 @@ fun FileCard(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = formatFileSize(LocalContext.current, item.size) + " · " +
-                        formatDateShort(LocalContext.current, item.dateModified),
+                    text = formatFileSize(context, item.size) + " · " +
+                        formatDateShort(context, item.dateModified),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -126,24 +132,29 @@ fun FileCard(
 }
 
 @Composable
-private fun CardHeader(item: FileItem) {
+private fun CardHeader(item: FileItem, onOpenFile: () -> Unit) {
     when (item.category) {
         FileCategory.PHOTOS, FileCategory.VIDEOS -> {
             var bitmap by remember(item.id) { mutableStateOf<Bitmap?>(null) }
             val context = LocalContext.current
             LaunchedEffect(item.id, item.uri) {
-                bitmap = withContext(Dispatchers.IO) { loadThumbnail(context, item.uri) }
+                bitmap = withContext(Dispatchers.IO) { loadPreview(context, item) }
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .pointerInput(item.uri) {
+                        // Long press opens the file in its native viewer/player.
+                        detectTapGestures(onLongPress = { onOpenFile() })
+                    }
             ) {
                 if (bitmap != null) {
                     Image(
                         bitmap = bitmap!!.asImageBitmap(),
                         contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                        // Native aspect ratio: the whole frame is visible, uncropped.
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
@@ -163,10 +174,11 @@ private fun CardHeader(item: FileItem) {
                             .size(52.dp)
                             .clip(CircleShape)
                             .background(Color.Black.copy(alpha = 0.45f))
+                            .clickable(onClick = onOpenFile)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.PlayArrow,
-                            contentDescription = null,
+                            contentDescription = stringOrEmpty(false),
                             tint = Color.White,
                             modifier = Modifier.align(Alignment.Center)
                         )
@@ -180,6 +192,9 @@ private fun CardHeader(item: FileItem) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.primaryContainer)
+                    .pointerInput(item.uri) {
+                        detectTapGestures(onLongPress = { onOpenFile() })
+                    }
             ) {
                 Icon(
                     imageVector = Icons.Rounded.MusicNote,
@@ -197,6 +212,9 @@ private fun CardHeader(item: FileItem) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .pointerInput(item.uri) {
+                        detectTapGestures(onLongPress = { onOpenFile() })
+                    }
             ) {
                 val visual = docVisualFor(item.extension)
                 Box(
@@ -387,5 +405,83 @@ private fun loadThumbnail(context: Context, uriRaw: String): Bitmap? {
         }
     } catch (_: Exception) {
         null
+    }
+}
+
+/**
+ * Native-resolution preview for the swipe card: the real image (not the small
+ * MediaStore thumbnail) or a full-size video frame; on failure any fallback.
+ */
+private fun loadPreview(context: Context, item: FileItem): Bitmap? = try {
+    if (item.category == FileCategory.VIDEOS) {
+        loadVideoFrame(context, Uri.parse(item.uri)) ?: loadThumbnail(context, item.uri)
+    } else {
+        loadFullImage(context, Uri.parse(item.uri)) ?: loadThumbnail(context, item.uri)
+    }
+} catch (_: Exception) {
+    null
+}
+
+/** Full image decoded from the actual file, downsampled only past 2560px to keep memory sane. */
+private fun loadFullImage(context: Context, uri: Uri): Bitmap? {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    context.contentResolver.openInputStream(uri)?.use {
+        BitmapFactory.decodeStream(it, null, bounds)
+    }
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+    val maxDim = maxOf(bounds.outWidth, bounds.outHeight)
+    var sample = 1
+    while (maxDim > 2560 * sample) sample *= 2
+    val options = BitmapFactory.Options().apply { inSampleSize = sample }
+    return context.contentResolver.openInputStream(uri)?.use {
+        BitmapFactory.decodeStream(it, null, options)
+    }
+}
+
+/** Native-resolution frame from the start of the video. */
+private fun loadVideoFrame(context: Context, uri: Uri): Bitmap? {
+    var retriever: MediaMetadataRetriever? = null
+    try {
+        retriever = MediaMetadataRetriever().apply { setDataSource(context, uri) }
+        return retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+    } catch (_: Exception) {
+        return null
+    } finally {
+        try {
+            retriever?.release()
+        } catch (_: Exception) {
+        }
+    }
+}
+
+/** Opens the item in the system viewer/player (long press on the card header). */
+private fun openInViewer(context: Context, item: FileItem) {
+    try {
+        val uri = Uri.parse(item.uri)
+        val mime = context.contentResolver.getType(uri) ?: fallbackMime(item)
+        context.startActivity(
+            Intent(Intent.ACTION_VIEW)
+                .setDataAndType(uri, mime)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        )
+    } catch (_: Exception) {
+        // No viewer registered for this type; open silently does nothing.
+    }
+}
+
+private fun fallbackMime(item: FileItem): String = when (item.category) {
+    FileCategory.PHOTOS -> "image/*"
+    FileCategory.VIDEOS -> "video/*"
+    FileCategory.AUDIO -> "audio/*"
+    FileCategory.DOCUMENTS -> when (item.extension) {
+        "pdf" -> "application/pdf"
+        "doc" -> "application/msword"
+        "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        "xls" -> "application/vnd.ms-excel"
+        "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "ppt" -> "application/vnd.ms-powerpoint"
+        "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        "txt" -> "text/plain"
+        else -> "*/*"
     }
 }
