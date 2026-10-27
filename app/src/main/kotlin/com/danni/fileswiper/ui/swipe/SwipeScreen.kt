@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
@@ -60,6 +61,7 @@ import kotlin.math.max
 fun SwipeScreen(
     onFinished: () -> Unit,
     onFinishRequested: () -> Unit,
+    onViewTrash: () -> Unit,
     viewModel: SwipeViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -129,6 +131,22 @@ fun SwipeScreen(
                 text = formatFileSize(context, trashSize),
                 modifier = Modifier.padding(end = 8.dp)
             )
+            // Jump to the trash at any point; the swipe session stays alive.
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                onClick = onViewTrash,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteOutline,
+                        contentDescription = stringResource(R.string.trash_title),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
         }
 
         Box(

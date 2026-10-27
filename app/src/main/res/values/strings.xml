@@ -73,4 +73,6 @@
         <item quantity="one">%d file marked for deletion</item>
         <item quantity="other">%d files marked for deletion</item>
     </plurals>
+
+    <string name="back_cd">Back</string>
 </resources>

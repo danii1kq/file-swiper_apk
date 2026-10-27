@@ -46,13 +46,21 @@ fun AppRoot() {
                         popUpTo("swipe") { inclusive = true }
                     }
                 },
+                // Mid-session shortcut: peek the trash and come back to the
+                // same queue afterwards (session state lives in the ViewModel).
+                onViewTrash = {
+                    navController.navigate("trash") { launchSingleTop = true }
+                },
                 viewModel = swipeViewModel
             )
         }
         composable("trash") {
             TrashScreen(
                 onHomeRequested = {
-                    if (!navController.popBackStack("setup", false)) {
+                    // Back goes wherever it came from: the ongoing swipe
+                    // session when peeking mid-session, or the setup screen
+                    // after a finished session.
+                    if (!navController.popBackStack()) {
                         navController.navigate("setup")
                     }
                 },

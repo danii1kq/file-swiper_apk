@@ -77,4 +77,6 @@
         <item quantity="many">%d файлов помечено к удалению</item>
         <item quantity="other">%d файлов помечено к удалению</item>
     </plurals>
+
+    <string name="back_cd">Назад</string>
 </resources>
